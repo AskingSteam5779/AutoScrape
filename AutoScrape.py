@@ -51,7 +51,8 @@ search_link.click()
 
 # Inputs search term
 company_name = driver.find_element(By.ID, "CompanyName")
-company_name.send_keys('johnsonengineering.com')
+company_input = input("Enter the company name: ")
+company_name.send_keys(company_input)
 
 # Clicks on Search button
 search_button = driver.find_element(By.CLASS_NAME, "search-button")
