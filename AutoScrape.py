@@ -1,5 +1,4 @@
 import pandas as pd
-from bs4 import BeautifulSoup
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException
@@ -73,9 +72,7 @@ name_links = name_links[:5]
 
 names = []
 for name_link in name_links:
-    name_link_html = name_link.get_attribute("outerHTML")
-    soup = BeautifulSoup(name_link_html, "html.parser")
-    name = soup.get_text().strip()
+    name = name_link.text.strip()
     first_name, last_name = name.split(" ", 1)
     names.append((first_name, last_name))
 
