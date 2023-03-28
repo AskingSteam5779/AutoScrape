@@ -8,13 +8,7 @@ from selenium.webdriver.support.wait import WebDriverWait
 
 # Launches browser and opens webpage
 driver = webdriver.Chrome()
-driver.get("https://www.careershift.com/")
-
-# Finds element and clicks on it
-my_element = driver.find_element(By.XPATH, "//a[@href='/Account/Login']")
-
-# Click on sign up button
-my_element.click()
+driver.get("https://www.careershift.com/Account/Login")
 
 # Input sign in email
 sign_in_email = driver.find_element(By.ID, "UserEmail")
@@ -31,9 +25,10 @@ sign_in_button = driver.find_element(By.XPATH, '//button[text()="Login"]')
 sign_in_button.click()
 
 # If "Try it Out!" button is there, it is clicked
+
 try_it = '//a[@class="btn btn-link dismiss" and text()="Try it out!"]'
 try:
-    try_it = driver.find_element(By.XPATH, try_it)
+    try_it = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, try_it)))
 
     try_it.click()
 except NoSuchElementException:
