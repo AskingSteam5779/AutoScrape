@@ -67,7 +67,7 @@ advanced_search = driver.find_element(By.XPATH, '//button[@class="btn btn-primar
 advanced_search.click()
 
 name_links = WebDriverWait(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
-                                                                                 "[id^='contact-title--']")))
+                                                                                 "[id^='contact-title-']")))
 name_links = name_links[:5]
 
 names = []
