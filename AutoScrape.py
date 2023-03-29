@@ -16,7 +16,7 @@ sign_in_email.send_keys(input_email)
 
 # Input sign in password
 sign_in_password = driver.find_element(By.ID, "Password")
-input_password = input("Input your password:")
+input_password = input("Input your password: ")
 sign_in_password.send_keys(input_password)
 
 # Sign in
@@ -66,13 +66,18 @@ advanced_search = driver.find_element(By.XPATH, '//button[@class="btn btn-primar
                                                 'search-button text-nowrap"]')
 advanced_search.click()
 
-name_links = WebDriverWait(driver, 5).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
+# Waits until contacts are there
+contacts = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
                                                                                  "[id^='contact-title-']")))
-name_links = name_links[:5]
 
+# Makes it so it only grabs the first 5 names
+contacts = contacts[:5]
+
+# Creates empty list for names to be stripped and placed in list
 names = []
-for name_link in name_links:
-    name = name_link.text.strip()
+
+for contact in contacts:
+    name = contact.text.strip()
     first_name, last_name = name.split(" ", 1)
     names.append((first_name, last_name))
 
