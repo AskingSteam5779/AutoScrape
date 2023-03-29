@@ -36,7 +36,8 @@ except NoSuchElementException:
 
 # Clicks Contact Dropdown
 wait = WebDriverWait(driver, 10)
-contacts_button = wait.until(EC.visibility_of_element_located((By.XPATH, '//span[@class="title" and text()="Contacts"]')))
+contacts_button = wait.until(EC.visibility_of_element_located((By.XPATH,
+                                                               '//span[@class="title" and text()="Contacts"]')))
 contacts_button.click()
 
 # Clicks Search
@@ -68,7 +69,7 @@ advanced_search.click()
 
 # Waits until contacts are there
 contacts = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
-                                                                                 "[id^='contact-title-']")))
+                                                                               "[id^='contact-title-']")))
 
 # Makes it so it only grabs the first 5 names
 contacts = contacts[:5]
