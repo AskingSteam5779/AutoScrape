@@ -88,6 +88,7 @@ for company_input in companies:
     company_name = driver.find_element(By.ID, "CompanyName")
     company_name.clear()
     company_name.send_keys(company_input)
+    
     # Random mouse movement and scrolling
     random_mouse_movement(driver, company_name)
     random_scroll(driver)
@@ -95,8 +96,9 @@ for company_input in companies:
     # Clicks on Search button
     search_button = driver.find_element(By.CLASS_NAME, "search-button")
     search_button.click()
-
-    # Clicks on Advanced Switch
+    
+    # New Update on careershift breaks site when advanced searching with executives
+    """
     advanced_switch = driver.find_element(By.XPATH, '//span[@title="Advanced Search"]')
     advanced_switch.click()
     # Random mouse movement and scrolling
@@ -112,7 +114,7 @@ for company_input in companies:
     advanced_search = driver.find_element(By.XPATH, '//button[@class="btn btn-primary btn-lg btn-block py-3 uppercase '
                                                     'search-button text-nowrap"]')
     advanced_search.click()
-
+    """
     # Waits until contacts are there
     contacts = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
                                                                                    "[id^='contact-title-']")))
@@ -122,12 +124,14 @@ for company_input in companies:
 
     # Creates empty list for names to be stripped and placed in list
     names = []
+    
     # Loops through contacts and strips names
     for contact in contacts:
         name = contact.text.strip()
         first_name, last_name = name.split(" ", 1)
         names.append((first_name, last_name))
     # Creates dataframe for names and company
+    
     data = {"First Name": [name[0] for name in names], "Last Name": [name[1] for name in names],
             "Company": [company_input] * len(names)}
     df = pd.DataFrame(data)
