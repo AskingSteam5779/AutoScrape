@@ -1,9 +1,37 @@
 import pandas as pd
+import random
+import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.action_chains import ActionChains
 from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.wait import WebDriverWait
+
+
+# Function for random mouse movement
+def random_mouse_movement(driver, element):
+    action = ActionChains(driver)
+    element_size = element.size
+    element_location = element.location
+
+    x_offset = random.randint(-50, 50)
+    y_offset = random.randint(-50, 50)
+
+    if 0 <= element_location["x"] + x_offset <= element_location["x"] + element_size["width"] and \
+            0 <= element_location["y"] + y_offset <= element_location["y"] + element_size["height"]:
+        action.move_to_element_with_offset(element, x_offset, y_offset).perform()
+    else:
+
+        pass
+
+
+# Function for random scrolling
+def random_scroll(driver):
+    scroll_amount = random.randint(-300, 300)
+    driver.execute_script(f"window.scrollBy(0, {scroll_amount});")
+    time.sleep(random.uniform(0.5, 2))
+
 
 # Launches browser and opens webpage
 driver = webdriver.Chrome()
@@ -34,57 +62,70 @@ except NoSuchElementException:
 
     pass
 
-# Clicks Contact Dropdown
-wait = WebDriverWait(driver, 10)
-contacts_button = wait.until(EC.visibility_of_element_located((By.XPATH,
-                                                               '//span[@class="title" and text()="Contacts"]')))
-contacts_button.click()
+all_data = pd.DataFrame(columns=["First Name", "Last Name", "Company"])
 
-# Clicks Search
-search_link = WebDriverWait(driver, 4).until(EC.element_to_be_clickable((By.LINK_TEXT, "Search")))
-search_link.click()
+for i in range(5):
+    company_input = input(f"Enter company {i + 1}: ")
 
-# Inputs search term
-company_name = driver.find_element(By.ID, "CompanyName")
-company_input = input("Enter the company name: ")
-company_name.send_keys(company_input)
+    # Clicks Contact Dropdown
+    wait = WebDriverWait(driver, 10)
+    contacts_button = wait.until(EC.visibility_of_element_located((By.XPATH,
+                                                                   '//span[@class="title" and text()="Contacts"]')))
+    contacts_button.click()
 
-# Clicks on Search button
-search_button = driver.find_element(By.CLASS_NAME, "search-button")
-search_button.click()
+    # Clicks Search
+    search_link = WebDriverWait(driver, 4).until(EC.element_to_be_clickable((By.LINK_TEXT, "Search")))
+    search_link.click()
 
-# Clicks on Advanced Switch
-advanced_switch = driver.find_element(By.XPATH, '//span[@title="Advanced Search"]')
-advanced_switch.click()
+    # Inputs search term
+    company_name = driver.find_element(By.ID, "CompanyName")
+    company_name.clear()
+    company_name.send_keys(company_input)
 
-# Clicks on Executive Checkbox
-executive = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((By.XPATH,
-                                                                       '//label[@for="TitleSeniority-Executives"]')))
-executive.click()
+    random_mouse_movement(driver, company_name)
+    random_scroll(driver)
 
-# Searches using advanced search
-advanced_search = driver.find_element(By.XPATH, '//button[@class="btn btn-primary btn-lg btn-block py-3 uppercase '
-                                                'search-button text-nowrap"]')
-advanced_search.click()
+    # Clicks on Search button
+    search_button = driver.find_element(By.CLASS_NAME, "search-button")
+    search_button.click()
 
-# Waits until contacts are there
-contacts = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
-                                                                               "[id^='contact-title-']")))
+    # Clicks on Advanced Switch
+    advanced_switch = driver.find_element(By.XPATH, '//span[@title="Advanced Search"]')
+    advanced_switch.click()
 
-# Makes it so it only grabs the first 5 names
-contacts = contacts[:5]
+    random_mouse_movement(driver, advanced_switch)
+    random_scroll(driver)
 
-# Creates empty list for names to be stripped and placed in list
-names = []
+    # Clicks on Executive Checkbox
+    executive = WebDriverWait(driver, 2).until(EC.element_to_be_clickable((
+        By.XPATH, '//label[@for="TitleSeniority-Executives"]')))
+    executive.click()
 
-for contact in contacts:
-    name = contact.text.strip()
-    first_name, last_name = name.split(" ", 1)
-    names.append((first_name, last_name))
+    # Searches using advanced search
+    advanced_search = driver.find_element(By.XPATH, '//button[@class="btn btn-primary btn-lg btn-block py-3 uppercase '
+                                                    'search-button text-nowrap"]')
+    advanced_search.click()
 
-names.sort(key=lambda x: x[0])
+    # Waits until contacts are there
+    contacts = WebDriverWait(driver, 3).until(EC.presence_of_all_elements_located((By.CSS_SELECTOR,
+                                                                                   "[id^='contact-title-']")))
 
-data = {"First Name": [name[0] for name in names], "Last Name": [name[1] for name in names]}
-df = pd.DataFrame(data)
+    # Makes it so it only grabs the first 5 names
+    contacts = contacts[:5]
 
-df.to_excel("output.xlsx", index=False)
+    # Creates empty list for names to be stripped and placed in list
+    names = []
+
+    for contact in contacts:
+        name = contact.text.strip()
+        first_name, last_name = name.split(" ", 1)
+        names.append((first_name, last_name))
+
+    names.sort(key=lambda x: x[0])
+
+    data = {"First Name": [name[0] for name in names], "Last Name": [name[1] for name in names],
+            "Company": [company_input] * len(names)}
+    df = pd.DataFrame(data)
+    all_data = pd.concat([all_data, df], ignore_index=True)
+
+all_data.to_excel("output.xlsx", index=False)
