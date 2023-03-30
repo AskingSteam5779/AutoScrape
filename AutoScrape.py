@@ -18,8 +18,8 @@ def random_mouse_movement(driver, element):
     x_offset = random.randint(-50, 50)
     y_offset = random.randint(-50, 50)
 
-    if 0 <= element_location["x"] + x_offset <= element_location["x"] + element_size["width"] and \
-            0 <= element_location["y"] + y_offset <= element_location["y"] + element_size["height"]:
+    if 0 <= element_location["x"] + x_offset <= element_location["x"] - element_size["width"] and \
+            0 <= element_location["y"] + y_offset <= element_location["y"] - element_size["height"]:
         action.move_to_element_with_offset(element, x_offset, y_offset).perform()
     else:
 
@@ -52,7 +52,6 @@ sign_in_button = driver.find_element(By.XPATH, '//button[text()="Login"]')
 sign_in_button.click()
 
 # If "Try it Out!" button is there, it is clicked
-
 try_it = '//a[@class="btn btn-link dismiss" and text()="Try it out!"]'
 try:
     try_it = WebDriverWait(driver, 5).until(EC.element_to_be_clickable((By.XPATH, try_it)))
@@ -62,11 +61,19 @@ except NoSuchElementException:
 
     pass
 
+# Creates list of companies to search
+companies = []
+
+# Asks for 5 companies to search
+for i in range(5):
+    company = input(f"Enter company {i + 1}: ")
+    companies.append(company)
+
+# Creates empty dataframe to store First Name, Last Name, and Company
 all_data = pd.DataFrame(columns=["First Name", "Last Name", "Company"])
 
-for i in range(5):
-    company_input = input(f"Enter company {i + 1}: ")
-
+# Loops through companies
+for company_input in companies:
     # Clicks Contact Dropdown
     wait = WebDriverWait(driver, 10)
     contacts_button = wait.until(EC.visibility_of_element_located((By.XPATH,
@@ -81,7 +88,7 @@ for i in range(5):
     company_name = driver.find_element(By.ID, "CompanyName")
     company_name.clear()
     company_name.send_keys(company_input)
-
+    # Random mouse movement and scrolling
     random_mouse_movement(driver, company_name)
     random_scroll(driver)
 
@@ -92,7 +99,7 @@ for i in range(5):
     # Clicks on Advanced Switch
     advanced_switch = driver.find_element(By.XPATH, '//span[@title="Advanced Search"]')
     advanced_switch.click()
-
+    # Random mouse movement and scrolling
     random_mouse_movement(driver, advanced_switch)
     random_scroll(driver)
 
@@ -115,17 +122,18 @@ for i in range(5):
 
     # Creates empty list for names to be stripped and placed in list
     names = []
-
+    # Loops through contacts and strips names
     for contact in contacts:
         name = contact.text.strip()
         first_name, last_name = name.split(" ", 1)
         names.append((first_name, last_name))
-
-    names.sort(key=lambda x: x[0])
-
+    # Creates dataframe for names and company
     data = {"First Name": [name[0] for name in names], "Last Name": [name[1] for name in names],
             "Company": [company_input] * len(names)}
     df = pd.DataFrame(data)
     all_data = pd.concat([all_data, df], ignore_index=True)
 
-all_data.to_excel("output.xlsx", index=False)
+# Sorts data alphabetically by company
+sorted_data = all_data.sort_values(by=["Company"])
+sorted_data.reset_index(drop=True, inplace=True)
+sorted_data.to_excel("output.xlsx", index=False)
